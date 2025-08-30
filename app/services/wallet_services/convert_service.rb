@@ -39,7 +39,7 @@ module WalletServices
 
     def validate_currencies
       if VALID_CURRENCIES.exclude?(currency) || VALID_CURRENCIES.exclude?(to_currency)
-        raise ArgumentError, "Invalid currency"
+        raise ArgumentError, "Currency conversion not supported"
       end
     end
 
@@ -66,7 +66,7 @@ module WalletServices
     end
 
     def fetch_exchange_rate
-      return custom_exchange_rate if custom_exchange_rate.present?
+      return custom_exchange_rate.to_d if custom_exchange_rate.present?
 
       currency == "USD" ? USD_TO_MXN_EXCHANGE_RATE : MXN_TO_USD_EXCHANGE_RATE
     end
