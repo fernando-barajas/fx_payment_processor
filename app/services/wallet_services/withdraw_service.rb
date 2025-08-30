@@ -21,14 +21,6 @@ module WalletServices
       validate_funds
     end
 
-    def validate_wallet_balance_for_currency
-      raise ArgumentError, "The user doesn't have a wallet balance for the specified currency" unless wallet_balance.persisted?
-    end
-
-    def validate_funds
-      raise ArgumentError, "Insufficient funds" if wallet_balance.amount < amount
-    end
-
     def create_transaction
       wallet.withdraw_transactions.create!(
         amount: amount,

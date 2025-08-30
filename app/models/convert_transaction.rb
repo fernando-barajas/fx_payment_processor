@@ -1,0 +1,2 @@
+class ConvertTransaction < WalletTransaction
+end

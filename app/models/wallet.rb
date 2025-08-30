@@ -3,6 +3,7 @@ class Wallet < ApplicationRecord
   has_many :wallet_balances, dependent: :destroy
   has_many :fund_transactions, dependent: :destroy
   has_many :withdraw_transactions, dependent: :destroy
+  has_many :convert_transactions, dependent: :destroy
 
   def balance_for(currency:)
     wallet_balances.find_or_initialize_by(currency: currency.upcase)

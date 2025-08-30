@@ -5,7 +5,7 @@ module WalletServices
     def initialize(wallet:, amount:, currency:)
       @wallet = wallet
       @amount = amount.to_d
-      @currency = currency
+      @currency = currency.to_s.upcase
     end
 
     private
@@ -13,7 +13,21 @@ module WalletServices
     attr_reader :wallet, :amount, :currency
 
     def wallet_balance
-      @wallet_balance ||= wallet.balance_for(currency: currency.upcase)
+      @wallet_balance ||= wallet.balance_for(currency: currency)
+    end
+
+    def create_withdraw_transaction
+      wallet.withdraw_transactions.create!(
+        amount: amount,
+        currency: currency
+      )
+    end
+
+    def create_fund_transaction
+      wallet.fund_transactions.create!(
+        amount: amount,
+        currency: currency
+      )
     end
 
     def validate_zero_amount
@@ -29,7 +43,17 @@ module WalletServices
     end
 
     def validate_currency
-      raise ArgumentError, "Invalid currency" if VALID_CURRENCIES.exclude?(currency.to_s.upcase)
+      raise ArgumentError, "Invalid currency" if VALID_CURRENCIES.exclude?(currency)
+    end
+
+    def validate_wallet_balance_for_currency
+      unless wallet_balance.persisted?
+        raise ArgumentError, "The user doesn't have a wallet balance for the specified currency"
+      end
+    end
+
+    def validate_funds
+      raise ArgumentError, "Insufficient funds" if wallet_balance.amount < amount
     end
   end
 end
