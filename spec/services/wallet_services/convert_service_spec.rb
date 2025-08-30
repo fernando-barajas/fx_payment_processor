@@ -150,7 +150,7 @@ RSpec.describe WalletServices::ConvertService do
       let(:to_currency) { "MXN" }
 
       it "raise an error" do
-        expect { subject.call }.to raise_error(ArgumentError, "Invalid currency")
+        expect { subject.call }.to raise_error(ArgumentError, "Currency conversion not supported")
       end
     end
 
