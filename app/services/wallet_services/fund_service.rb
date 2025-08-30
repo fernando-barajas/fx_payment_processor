@@ -3,10 +3,11 @@ module WalletServices
     def call
       validate_attributes
 
-      wallet_balance = wallet.balance_for(currency: @currency)
-      wallet_balance.amount = wallet_balance.amount.to_d + amount.to_d
+      wallet_balance.with_lock do
+        wallet_balance.amount = wallet_balance.amount.to_d + amount.to_d
 
-      create_transaction if wallet_balance.save!
+        create_transaction if wallet_balance.save!
+      end
     end
 
     private
@@ -16,14 +17,6 @@ module WalletServices
       validate_zero_amount
       validate_negative_amount
       validate_currency
-    end
-
-    def validate_zero_amount
-      raise ArgumentError, "Amount must be greater than 0" if amount.zero?
-    end
-
-    def validate_negative_amount
-      raise ArgumentError, "Amount must be non-negative" if amount.negative?
     end
 
     def create_transaction
