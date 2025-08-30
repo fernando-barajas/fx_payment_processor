@@ -13,11 +13,16 @@ module WalletServices
 
     def validate_attributes
       validate_wallet
-      validate_amount
+      validate_zero_amount
+      validate_negative_amount
       validate_currency
     end
 
-    def validate_amount
+    def validate_zero_amount
+      raise ArgumentError, "Amount must be greater than 0" if amount.zero?
+    end
+
+    def validate_negative_amount
       raise ArgumentError, "Amount must be non-negative" if amount.negative?
     end
 

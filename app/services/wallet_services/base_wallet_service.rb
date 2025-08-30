@@ -4,7 +4,7 @@ module WalletServices
 
     def initialize(wallet:, amount:, currency:)
       @wallet = wallet
-      @amount = amount
+      @amount = amount.to_d
       @currency = currency
     end
 
