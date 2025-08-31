@@ -233,7 +233,7 @@ RSpec.describe WalletsController, type: :controller do
     end
   end
 
-  describe "GET #reconciliation" do
+  describe "GET #reconciliation_check" do
     let(:user) { FactoryBot.create(:user) }
     let(:wallet) { user.wallet }
 
@@ -247,7 +247,7 @@ RSpec.describe WalletsController, type: :controller do
       post :convert, params: { user_id: user.id, from_currency: "MXN", to_currency: "USD", amount: 100 }
       post :convert, params: { user_id: user.id, from_currency: "USD", to_currency: "MXN", amount: 20, custom_exchange_rate: 21 }
 
-      get :reconciliation, params: { user_id: user.id }, format: :json
+      get :reconciliation_check, params: { user_id: user.id }, format: :json
 
       expect(response).to be_successful
 

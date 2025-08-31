@@ -47,8 +47,10 @@ class WalletsController < ApplicationController
     }, status: :ok
   end
 
-  def reconciliation
-    render json: @wallet.reconciliation_check, status: :ok
+  def reconciliation_check
+    reconciliation_check = WalletServices::ReconciliationCheckService.new(wallet: @wallet).call
+
+    render json: reconciliation_check, status: :ok
   end
 
   private

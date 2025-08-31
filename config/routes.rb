@@ -12,7 +12,7 @@ Rails.application.routes.draw do
     member do
       get :balances
       get :transactions
-      get :reconciliation
+      get :reconciliation_check
       post :fund
       post :withdraw
       post :convert
