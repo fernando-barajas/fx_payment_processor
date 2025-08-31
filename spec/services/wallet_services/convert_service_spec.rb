@@ -24,32 +24,20 @@ RSpec.describe WalletServices::ConvertService do
         expect { subject.call }
         .to change { wallet.balance_for(currency: from_currency).amount }.by(-amount)
         .and change { wallet.balance_for(currency: to_currency).amount }.by(funded_amount)
-        .and change { wallet.fund_transactions.count }.by(1)
-        .and change { wallet.withdraw_transactions.count }.by(1)
         .and change { wallet.convert_transactions.count }.by(1)
+        .and change { wallet.fund_transactions.count }.by(0)
+        .and change { wallet.withdraw_transactions.count }.by(0)
       end
 
-      it "creates the fund, withdraw, and convert transactions with the correct attributes" do
+      it "creates the convert transactions with the correct attributes" do
         exchange_rate = 18.70
         funded_amount = amount.to_d * exchange_rate
 
-        expect { subject.call }.to change { wallet.fund_transactions.count }.by(1)
+        expect { subject.call }.to change { wallet.convert_transactions.count }.by(1)
 
         wallet.reload
 
-        fund_transaction = wallet.fund_transactions.last
-        withdraw_transaction = wallet.withdraw_transactions.last
         convert_transaction = wallet.convert_transactions.last
-
-        expect(withdraw_transaction).to have_attributes(
-          currency: "USD",
-          amount: amount
-        )
-
-        expect(fund_transaction).to have_attributes(
-          currency: "MXN",
-          amount: funded_amount
-        )
 
         expect(convert_transaction).to have_attributes(
           currency: "USD",
@@ -81,7 +69,7 @@ RSpec.describe WalletServices::ConvertService do
     let(:to_currency) { "MXN" }
     let!(:wallet_balance_usd) { FactoryBot.create(:wallet_balance, wallet: wallet, currency: "USD", amount: 200) }
     let!(:wallet_balance_mxn) { FactoryBot.create(:wallet_balance, wallet: wallet, currency: "MXN", amount: 200) }
-    let(:custom_exchange_rate) { 20.0 }
+    let(:custom_exchange_rate) { 20.053 }
 
     subject do
       described_class.new(wallet:, amount:, from_currency:, to_currency:, custom_exchange_rate:)
@@ -94,6 +82,12 @@ RSpec.describe WalletServices::ConvertService do
 
       new_amount = prev_amount + (amount.to_d * custom_exchange_rate)
       expect(wallet.balance_for(currency: "MXN").amount).to eq(new_amount)
+      expect(wallet.convert_transactions.last).to have_attributes(
+        currency: "USD",
+        amount: amount,
+        to_currency: "MXN",
+        exchange_rate: custom_exchange_rate
+      )
     end
 
     context "passing invalid exchange rate" do

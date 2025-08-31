@@ -232,4 +232,27 @@ RSpec.describe WalletsController, type: :controller do
       )
     end
   end
+
+  describe "GET #reconciliation" do
+    let(:user) { FactoryBot.create(:user) }
+    let(:wallet) { user.wallet }
+
+    it "returns the wallet reconciliation data" do
+      post :fund, params: { user_id: user.id, amount: 100, currency: "USD" }
+      post :fund, params: { user_id: user.id, amount: 200, currency: "MXN" }
+
+      post :withdraw, params: { user_id: user.id, amount: 50, currency: "USD" }
+      post :fund, params: { user_id: user.id, amount: 48.95, currency: "MXN" }
+
+      post :convert, params: { user_id: user.id, from_currency: "MXN", to_currency: "USD", amount: 100 }
+      post :convert, params: { user_id: user.id, from_currency: "USD", to_currency: "MXN", amount: 20, custom_exchange_rate: 21 }
+
+      get :reconciliation, params: { user_id: user.id }, format: :json
+
+      expect(response).to be_successful
+
+      parsed_body = JSON.parse(response.body)
+      expect(parsed_body).to eq({"USD" => "OK", "MXN" => "OK"})
+    end
+  end
 end
