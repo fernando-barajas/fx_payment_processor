@@ -19,7 +19,7 @@ module WalletServices
         from_wallet_balance.save!
         to_wallet_balance.save!
 
-        create_transactions
+        create_convert_transaction
       end
     end
 
@@ -69,26 +69,6 @@ module WalletServices
       return custom_exchange_rate.to_d if custom_exchange_rate.present?
 
       currency == "USD" ? USD_TO_MXN_EXCHANGE_RATE : MXN_TO_USD_EXCHANGE_RATE
-    end
-
-    def create_transactions
-      create_fund_transaction
-      create_withdraw_transaction
-      create_convert_transaction
-    end
-
-    def create_fund_transaction
-      wallet.fund_transactions.create!(
-        amount: amount_to_fund,
-        currency: to_currency
-      )
-    end
-
-    def create_withdraw_transaction
-      wallet.withdraw_transactions.create!(
-        amount: amount,
-        currency: currency
-      )
     end
 
     def create_convert_transaction

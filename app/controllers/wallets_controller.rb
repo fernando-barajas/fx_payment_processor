@@ -47,6 +47,10 @@ class WalletsController < ApplicationController
     }, status: :ok
   end
 
+  def reconciliation
+    render json: @wallet.reconciliation_check, status: :ok
+  end
+
   private
 
   def fetch_wallet

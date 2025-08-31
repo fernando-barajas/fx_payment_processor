@@ -9,6 +9,33 @@ class Wallet < ApplicationRecord
     wallet_balances.find_or_initialize_by(currency: currency.upcase)
   end
 
+  def reconciliation_check
+    current_balance.each_with_object({}) do |(currency, balance), acc|
+      total_amount = (total_amount_funded_for(currency:) + total_amount_funded_by_conversion_for(currency:)) -
+                      (total_amount_withdrew_for(currency:) + total_amount_withdrew_by_conversion_for(currency:))
+
+      acc[currency] = total_amount.to_d == balance ? "OK" : "Mismatch"
+    end
+  end
+
+  def total_amount_funded_for(currency:)
+    fund_transactions.for_currency(currency).sum(:amount)
+  end
+
+  def total_amount_funded_by_conversion_for(currency:)
+    convert_transactions.to_currency(currency).sum do |transaction|
+      transaction.amount.to_f * transaction.exchange_rate
+    end
+  end
+
+  def total_amount_withdrew_for(currency:)
+    withdraw_transactions.for_currency(currency).sum(:amount)
+  end
+
+  def total_amount_withdrew_by_conversion_for(currency:)
+    convert_transactions.from_currency(currency).sum(:amount)
+  end
+
   def current_balance
     wallet_balances.inject({}) do |acc, balance|
       acc[balance.currency] = balance.amount.to_f
