@@ -24,7 +24,7 @@ class WalletsController < ApplicationController
   def convert
     WalletServices::ConvertService.new(**convert_params).call
 
-    render json: { message: "Wallet converted successfully" }, status: :ok
+    render json: { message: "Funds converted successfully" }, status: :ok
   rescue ArgumentError => e
     render json: { error: e.message }, status: :unprocessable_entity
   end
